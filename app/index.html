@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mandao · Tu compra del súper a domicilio</title>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header class="barra">
+  <a href="#/catalogo" class="logo">Mandao</a>
+  <button class="hamburguesa" data-testid="menu-movil" aria-label="Abrir menú" aria-expanded="false">☰</button>
+  <nav class="menu" data-testid="menu">
+    <a href="#/catalogo" data-testid="nav-catalogo">Catálogo</a>
+    <a href="#/carrito" data-testid="nav-carrito">Carrito <span class="contador" data-testid="contador-carrito">0</span></a>
+    <a href="#/login" data-testid="nav-salir">Salir</a>
+  </nav>
+</header>
+
+<main id="vista"></main>
+
+<script src="calculos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

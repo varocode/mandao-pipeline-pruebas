@@ -1,0 +1,85 @@
+# Pipeline de pruebas automatizadas de Mandao.
+# Se dispara con cada push a main, con cada pull request y a mano desde la pestaña Actions.
+name: Pipeline de pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write   # para abrir o cerrar el issue de notificación
+
+jobs:
+  pruebas:
+    name: Pruebas unitarias y E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: true
+
+    steps:
+      - name: 1. Clonar el repositorio
+        uses: actions/checkout@v7
+
+      - name: 2. Preparar Node.js con caché de dependencias
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: 2. Instalar dependencias y el navegador
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: 3. Pruebas unitarias
+        id: unitarias
+        run: npm run test:unit
+
+      - name: 4. Pruebas end-to-end (escritorio y Pixel 7)
+        id: e2e
+        if: ${{ !cancelled() }}
+        run: npm run test:e2e
+
+      - name: 5. Resumen de resultados
+        if: ${{ always() }}
+        run: npm run resumen
+
+      - name: 5. Publicar reportes (HTML y JUnit)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: reportes
+          path: reportes/
+          retention-days: 30
+
+      - name: 6. Notificar el fallo con un issue
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create pipeline-fallido --color B60205 --description "Abierto por el pipeline" 2>/dev/null || true
+          gh issue create \
+            --title "Pipeline fallido en ${GITHUB_SHA::7}" \
+            --label pipeline-fallido \
+            --assignee "${{ github.actor }}" \
+            --body "El pipeline de pruebas falló en el commit ${GITHUB_SHA::7} de @${{ github.actor }}.
+
+          - Unitarias: ${{ steps.unitarias.outcome }}
+          - End-to-end: ${{ steps.e2e.outcome }}
+
+          Ejecución y reportes: $URL"
+
+      - name: 6. Notificar la recuperación y cerrar issues
+        if: ${{ success() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          for n in $(gh issue list --label pipeline-fallido --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Resuelto: el commit ${GITHUB_SHA::7} pasó todas las pruebas. $URL"
+          done

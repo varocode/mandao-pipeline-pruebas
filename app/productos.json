@@ -1,0 +1,8 @@
+[
+  { "id": "arroz",       "nombre": "Arroz selecto 10 lb",     "precio": 420, "disponible": true },
+  { "id": "habichuelas", "nombre": "Habichuelas rojas 15 oz", "precio": 75,  "disponible": true },
+  { "id": "salami",      "nombre": "Salami 1 lb",             "precio": 260, "disponible": true },
+  { "id": "cafe",        "nombre": "Café molido 1 lb",        "precio": 365, "disponible": true },
+  { "id": "platanos",    "nombre": "Plátanos verdes (3)",     "precio": 60,  "disponible": true },
+  { "id": "leche",       "nombre": "Leche entera 1 L",        "precio": 95,  "disponible": false }
+]
