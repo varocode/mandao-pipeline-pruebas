@@ -1,7 +1,7 @@
 // Lógica de negocio pura de Mandao: sin DOM, para poder probarla con pruebas unitarias.
 // Funciona en el navegador (window.Calculos) y en Node (require).
 
-const ITBIS = 0.18;
+const ITBIS = 0.16;
 
 function calcularTotales(carrito, productos, tasa = ITBIS) {
   const subtotal = Object.entries(carrito).reduce((suma, [id, cantidad]) => {
